@@ -74,7 +74,7 @@ public:
         if (trigger) {
             // Add a marker to the callstack, so the handler knows the strand is
             // running in the current thread
-            Callstack<Strand>::Context ctx(this);
+            typename Callstack<Strand>::Context ctx(this);
             handler();
 
             // Run any remaining handlers.
@@ -118,7 +118,7 @@ private:
     // This assumes the strand is marked as running.
     // When there are no more handlers, it marks the strand as not running.
     void run() {
-        Callstack<Strand>::Context ctx(this);
+        typename Callstack<Strand>::Context ctx(this);
         while (true) {
             std::function<void()> handler;
             data_([&](Data& data) {
