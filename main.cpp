@@ -5,9 +5,10 @@
 #include <iostream>
 #include <atomic>
 #include <random>
+#include <thread>
+#include <chrono>
 
 #include <Remotery.h>
-#include <windows.h>
 
 #include "Utils.h"
 #include "WorkQueue.h"
@@ -122,7 +123,6 @@ int main()
 
 	time_t t;
 	srand((unsigned)time(&t));
-	timeBeginPeriod(1);
 
     Remotery* rmt;
     rmt_CreateGlobalInstance(&rmt);
@@ -231,7 +231,7 @@ int main()
 	printf("MAINTHREAD: totaTime=%5.2f totalWork=%5.2f totalOverhead=%3.2f%%\n",
 		mainThreadTotalTime, totalWork, totalOverhead);
 
-	Sleep(3000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 	printf("Done\n");
 	rmt_DestroyGlobalInstance(rmt);
 }

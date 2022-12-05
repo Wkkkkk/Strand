@@ -12,7 +12,7 @@ struct DebugInfo {
     DebugInfo(int line, const char* func, const char* fmt, Args... args)
         : line(line), func(func) {
         char buf[256];
-        sprintf_s(buf, fmt, args...);
+        sprintf(buf, fmt, args...);
         extra = buf;
     }
 };

@@ -27,7 +27,7 @@
 template <typename Processor>
 class Strand {
 public:
-    Strand(Processor& proc) : m_proc(proc) {}
+    Strand(Processor& proc) : proc_(proc) {}
 
     Strand(const Strand&) = delete;
     Strand& operator=(const Strand&) = delete;
@@ -40,7 +40,7 @@ public:
         // If we are not currently in the processor dispatching function (in
         // this thread), then we cannot possibly execute the handler here, so
         // enqueue it and bail out
-        if (!m_proc.canDispatch()) {
+        if (!proc_.canDispatch()) {
             post(std::move(handler));
             return;
         }
@@ -61,7 +61,7 @@ public:
         // The strand can still be running in another worker thread, so we need
         // to atomically enqueue the handler for the other thread to execute OR
         // mark the strand as running in this thread
-        auto trigger = m_data([&](Data& data) {
+        auto trigger = data_([&](Data& data) {
             if (data.running) {
                 data.q.push(std::move(handler));
                 return false;
@@ -92,7 +92,7 @@ public:
     void post(F handler) {
         // We atomically enqueue the handler AND check if we need to start the
         // running process.
-        bool trigger = m_data([&](Data& data) {
+        bool trigger = data_([&](Data& data) {
             data.q.push(std::move(handler));
             if (data.running) {
                 return false;
@@ -104,7 +104,7 @@ public:
 
         // The strand was not running, so trigger a run
         if (trigger) {
-            m_proc.push([this] { run(); });
+            proc_.push([this] { run(); });
         }
     }
 
@@ -121,7 +121,7 @@ private:
         Callstack<Strand>::Context ctx(this);
         while (true) {
             std::function<void()> handler;
-            m_data([&](Data& data) {
+            data_([&](Data& data) {
                 assert(data.running);
                 if (data.q.size()) {
                     handler = std::move(data.q.front());
@@ -142,6 +142,6 @@ private:
         bool running = false;
         std::queue<std::function<void()>> q;
     };
-    Monitor<Data> m_data;
-    Processor& m_proc;
+    Monitor<Data> data_;
+    Processor& proc_;
 };

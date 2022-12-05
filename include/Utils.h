@@ -48,7 +48,7 @@ public:
     }
 
     void spinMs(unsigned int ms) {
-        spin(unsigned int(ms * countPerMs));
+        spin(ms * countPerMs);
     }
 
 private:

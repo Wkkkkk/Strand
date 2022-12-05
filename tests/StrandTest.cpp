@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 #include <atomic>
+#include <thread>
 #include <gtest/gtest.h>
 
 #include "Strand.h"
